@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 # Release script for Project Manager: ~/git/project-manager/docs/project-folder.md (spec 1).
 #
-# One action:
+# The project has two parts, released apart, each under its own tags:
 #
-#   app     Bumps the version, builds and signs the APK on this computer and publishes it
-#           as a GitHub release. Nothing is signed in CI: the key stays on this computer
-#           (docs/signing.md).
-#
-# The installed apps read the repository's releases for updates (update/Updater.kt), so a
-# release is offered on the phone as soon as it is published; there is no second step.
+#   android   android/vX.Y.Z   Bumps the version, builds and signs the APK on this computer
+#                              and publishes it as a GitHub release. Nothing is signed in
+#                              CI: the key stays on this computer (docs/signing.md). The
+#                              installed apps read these releases for updates
+#                              (update/Updater.kt), so a release is offered on the phone as
+#                              soon as it is published.
+#   server    server/vX.Y.Z    Bumps the relay's version, runs its tests and publishes
+#                              server/ as a tarball on a GitHub release.
+#   deploy                     Puts a released server version on the host the owner's
+#                              phones use, over FTP, and checks the relay there. Where that
+#                              is stands in deploy.conf, which is not in git.
 #
 # An APK that does not carry the release certificate is refused: Android would not take it
 # as an update, and the way round that is uninstalling the app, which deletes its record.
@@ -21,6 +26,9 @@ KEY_ALIAS="wake-tracker"
 # SHA-256 of the signing certificate, as apksigner prints it (docs/signing.md). Not a secret.
 CERT_SHA256="c7fbc7b638dae180feb759a0fc47cf7e14cb54efed1966d7c080401052ac12a3"
 VERSION_FILE="app/build.gradle.kts"
+SERVER_VERSION_FILE="server/VERSION.md"
+# What of server/ goes to a host. test.sh stays behind: it is for this computer.
+SERVER_FILES=(api.php .htaccess VERSION.md README.md)
 # No file watching: the clone is built once and thrown away.
 GRADLE=(./gradlew --console=plain --quiet --no-watch-fs)
 
@@ -29,13 +37,27 @@ describe() {
 {
   "spec": 1,
   "actions": [
-    {"id": "app", "label": "Android app",
+    {"id": "android", "label": "Android app",
      "summary": "Bumps the version, builds and signs the APK on this computer and attaches it to a GitHub release, where the installed apps find it.",
      "kind": "release",
-     "tag": "v{version}",
+     "tag": "android/v{version}",
+     "paths": ["!server/"],
      "notes": true,
      "dry_run": true,
-     "notes_context": "Wake Tracker is an Android app that shows when the phone's screen was on: a total per day, the first and last time of each day, and summaries per day, week, workweek and weekend. It reads Android's own usage log, so it records without running. The notes are shown in the app when it offers the update, as plain text: short bullets about what changed for the person using it."}
+     "notes_context": "Wake Tracker is an Android app that shows when the phone's screen was on: a total per day, the first and last time of each day, and summaries per day, week, workweek and weekend. It reads Android's own usage log, so it records without running, and it can share its record, encrypted, with paired phones through a relay. The notes are shown in the app when it offers the update, as plain text: short bullets about what changed for the person using it."},
+    {"id": "server", "label": "Relay server",
+     "summary": "Bumps the relay's version, runs its tests and attaches server/ as a tarball to a GitHub release.",
+     "kind": "release",
+     "tag": "server/v{version}",
+     "paths": ["server/"],
+     "notes": true,
+     "dry_run": true,
+     "notes_context": "The relay of Wake Tracker: one PHP script that stores the encrypted records phones upload and hands them to the phones paired with them. It cannot read what it stores. The notes are for somebody who runs a relay: what changed, whether the apps need an update for it, anything to do when deploying."},
+    {"id": "deploy", "label": "Deploy the relay",
+     "summary": "Uploads a released relay version to the host named in deploy.conf over FTP and checks the relay there.",
+     "kind": "publish",
+     "tag": "server/v{version}",
+     "dry_run": true}
   ]
 }
 JSON
@@ -83,6 +105,52 @@ file_version() {
     sed -n -E 's/^ *versionName = "([^"]+)".*/\1/p' "$1/$VERSION_FILE"
 }
 
+server_file_version() {
+    sed -n 's/^version: *//p' "$1/$SERVER_VERSION_FILE"
+}
+
+# version.json at the root says which version of each part the sources are at.
+set_listed_version() {
+    sed -i -E "s/^( *\"$1\": *)\"[^\"]+\"/\1\"$2\"/" version.json
+}
+
+# Stops unless $2, the version to release, is at least $1, the one the files carry.
+not_below() {
+    if [ "$(printf '%s\n' "$1" "$2" | sort -V | tail -n 1)" != "$2" ]; then
+        echo "::fail The files are at $1 already; release that version or a higher one"
+        exit 1
+    fi
+}
+
+# A value of deploy.conf in the owner's checkout. The file is not in git: where the relay
+# runs is the owner's own business, and this repository is public.
+deploy_conf() {
+    sed -n "s/^$1=//p" "$(project_dir)/deploy.conf" 2>/dev/null | tail -n 1
+}
+
+# The version the relay at the deploy target reports; nothing when there is none.
+live_version() {
+    curl -fsS -m 15 "$(deploy_conf RELAY_URL)/api.php?a=hello" 2>/dev/null | sed -n 's/.*"version":"\([^"]*\)".*/\1/p' || true
+}
+
+# Runs the lftp commands on its input against the deploy target. The password comes from
+# the ~/.netrc entry of the FTP user; lftp never asks, there being no terminal.
+on_host() {
+    {
+        echo "set cmd:fail-exit yes"
+        echo "set cmd:interactive no"
+        echo "set net:max-retries 2"
+        echo "set net:timeout 20"
+        echo "set ftp:ssl-force yes"
+        echo "set ftp:ssl-protect-data yes"
+        echo "set ssl:check-hostname no"
+        echo "set xfer:clobber yes"
+        echo "open -u \"$(deploy_conf FTP_USER)\" \"$(deploy_conf FTP_URL)\""
+        echo "cd \"$(deploy_conf REMOTE_DIR)\""
+        cat
+    } | lftp -f /dev/stdin
+}
+
 # Stops unless the APK is the app, at the version being released, signed with the release key.
 verify_apk() {
     local apk=$1 certificate name version
@@ -104,6 +172,16 @@ verify_apk() {
     if [ "$certificate" != "$CERT_SHA256" ]; then
         echo "::fail The APK is not signed with the release key (docs/signing.md); no installed app could update to it"
         exit 1
+    fi
+}
+
+need_tool() {
+    if command -v "$1" >/dev/null 2>&1; then
+        echo "::ok $1 is installed"
+    else
+        echo "::fail $1 is not installed; $2"
+        echo "::hint sudo apt install $3"
+        return 1
     fi
 }
 
@@ -174,7 +252,7 @@ check_jdk() {
     echo "::ok JDK at $(jdk_dir)"
 }
 
-check_app() {
+check_android() {
     local ready=0
     check_github || ready=1
     check_sdk || ready=1
@@ -187,21 +265,51 @@ check_app() {
     return "$ready"
 }
 
-run_app() {
+check_server() {
+    local ready=0
+    check_github || ready=1
+    need_tool php "the relay's tests run it on this computer" php-cli || ready=1
+    need_tool curl "the relay's tests talk to it with curl" curl || ready=1
+    echo "::current $(server_file_version "$(project_dir)")"
+    return "$ready"
+}
+
+check_deploy() {
+    local ready=0 key live
+    check_github || ready=1
+    need_tool lftp "it uploads the relay" lftp || ready=1
+    need_tool curl "it asks the relay which version it is" curl || ready=1
+    for key in FTP_URL FTP_USER REMOTE_DIR RELAY_URL; do
+        if [ -z "$(deploy_conf "$key")" ]; then
+            echo "::fail $key is missing from deploy.conf in $(project_dir)"
+            echo "::hint Copy deploy.conf.example to deploy.conf and fill it in"
+            return 1
+        fi
+    done
+    if echo "cls -1" | on_host >/dev/null 2>&1; then
+        echo "::ok FTP login as $(deploy_conf FTP_USER) works"
+    else
+        echo "::fail FTP login as $(deploy_conf FTP_USER) does not work"
+        echo "::hint ~/.netrc needs: machine <host of FTP_URL> login $(deploy_conf FTP_USER) password ..."
+        ready=1
+    fi
+    live=$(live_version)
+    [ -z "$live" ] || echo "::current $live"
+    return "$ready"
+}
+
+run_android() {
     local current code apk body
     echo "::step Setting the version to $PM_VERSION"
     current=$(file_version .)
-    # A project with no release yet gets 0.1.0 suggested, which the files carry already.
-    if [ "$(printf '%s\n' "$current" "$PM_VERSION" | sort -V | tail -n 1)" != "$PM_VERSION" ]; then
-        echo "::fail The app is at $current already; release that version or a higher one"
-        exit 1
-    fi
+    not_below "$current" "$PM_VERSION"
     # The first release, or one made again after a removed release: the files carry this
     # version already and there is nothing to bump.
     if [ "$current" != "$PM_VERSION" ]; then
         # Android compares versionCode, not the name: every release needs a higher one.
         code=$(sed -n -E 's/^ *versionCode = ([0-9]+).*/\1/p' "$VERSION_FILE")
         sed -i -E "s/^( *versionCode = )[0-9]+/\1$((code + 1))/; s/^( *versionName = )\"[^\"]+\"/\1\"$PM_VERSION\"/" "$VERSION_FILE"
+        set_listed_version android "$PM_VERSION"
     fi
     grep -E "^ *version(Code|Name) = " "$VERSION_FILE"
     # A fresh clone lacks the two things git ignores: where the SDK is, and the keystore.
@@ -259,7 +367,7 @@ run_app() {
     git push --quiet origin "$PM_TAG"
 
     echo "::step Creating the GitHub release"
-    if ! gh release create "$PM_TAG" --repo "$REPO" --title "$APP_NAME $PM_VERSION" --notes-file "$body" "$apk"; then
+    if ! gh release create "$PM_TAG" --repo "$REPO" --title "Android v$PM_VERSION" --notes-file "$body" "$apk"; then
         echo "::fail $PM_TAG is pushed, but creating its GitHub release failed." \
             "Remove $PM_TAG on the project's page and release again"
         exit 1
@@ -267,17 +375,140 @@ run_app() {
     echo "::url $(gh release view "$PM_TAG" --repo "$REPO" --json url --jq .url)"
 }
 
+run_server() {
+    local current tarball body file
+    echo "::step Setting the relay's version to $PM_VERSION"
+    current=$(server_file_version .)
+    not_below "$current" "$PM_VERSION"
+    printf -- '---\ncomponent: server\nversion: %s\ntag: %s\n---\n' "$PM_VERSION" "$PM_TAG" > "$SERVER_VERSION_FILE"
+    set_listed_version server "$PM_VERSION"
+    cat "$SERVER_VERSION_FILE"
+
+    echo "::step Running the relay's tests"
+    if ! server/test.sh; then
+        echo "::fail The relay's tests failed; nothing was pushed"
+        exit 1
+    fi
+
+    echo "::step Packing server/"
+    for file in "${SERVER_FILES[@]}"; do
+        if [ ! -f "server/$file" ]; then
+            echo "::fail server/$file is missing"
+            exit 1
+        fi
+    done
+    tarball="$PM_WORK_DIR/wake-tracker-server-$PM_VERSION.tar.gz"
+    tar -czf "$tarball" -C server "${SERVER_FILES[@]}"
+    tar -tzf "$tarball"
+
+    git diff --quiet || git commit --quiet -am "Release $PM_TAG"
+    git tag -a "$PM_TAG" -m "$APP_NAME relay $PM_VERSION"
+
+    body="$PM_WORK_DIR/release-body.md"
+    {
+        if [ -s "${PM_NOTES_FILE:-}" ]; then
+            echo "## Changes"
+            echo
+            cat "$PM_NOTES_FILE"
+            echo
+        fi
+        echo "## Deploy"
+        echo
+        echo "Unpack the tarball into a folder served over https by PHP 8.1 or newer. The relay"
+        echo "keeps what the phones upload in \`data/\` next to the script; leave that folder in"
+        echo "place when updating. \`server/README.md\` has the details."
+        if [ -n "${PM_PREVIOUS_TAG:-}" ]; then
+            printf '\n**Full Changelog**: https://github.com/%s/compare/%s...%s\n' "$REPO" "$PM_PREVIOUS_TAG" "$PM_TAG"
+        fi
+    } > "$body"
+
+    if [ "${PM_DRY_RUN:-}" = 1 ]; then
+        echo "::warn Dry run: $tarball was built and the tests passed, nothing was pushed"
+        return 0
+    fi
+
+    echo "::point-of-no-return"
+    echo "::step Pushing $PM_DEFAULT_BRANCH and $PM_TAG"
+    if ! git push --quiet origin "HEAD:$PM_DEFAULT_BRANCH"; then
+        echo "::fail Pushing $PM_DEFAULT_BRANCH failed; nothing was pushed"
+        exit 1
+    fi
+    [ "$(git rev-parse HEAD)" = "$PM_SOURCE_COMMIT" ] || echo "::commit $(git rev-parse HEAD)"
+    git push --quiet origin "$PM_TAG"
+
+    echo "::step Creating the GitHub release"
+    if ! gh release create "$PM_TAG" --repo "$REPO" --title "Server v$PM_VERSION" --notes-file "$body" "$tarball"; then
+        echo "::fail $PM_TAG is pushed, but creating its GitHub release failed." \
+            "Remove $PM_TAG on the project's page and release again"
+        exit 1
+    fi
+    echo "::url $(gh release view "$PM_TAG" --repo "$REPO" --json url --jq .url)"
+}
+
+run_deploy() {
+    local tarball files file packed live relay
+    relay=$(deploy_conf RELAY_URL)
+    echo "::step Fetching the relay of $PM_TAG from GitHub"
+    if ! gh release download "$PM_TAG" --repo "$REPO" --pattern '*.tar.gz' --dir "$PM_WORK_DIR/release"; then
+        echo "::fail $PM_TAG has no GitHub release with a tarball; the \"Relay server\" action makes one"
+        exit 1
+    fi
+    tarball=$(find "$PM_WORK_DIR/release" -name '*.tar.gz' | head -n 1)
+    files="$PM_WORK_DIR/server"
+    mkdir -p "$files"
+    tar -xzf "$tarball" -C "$files"
+    packed=$(server_file_version "$PM_WORK_DIR")
+    echo "Tarball: $(basename "$tarball"), version $packed"
+    if [ "$packed" != "$PM_VERSION" ] || [ ! -f "$files/api.php" ]; then
+        echo "::fail The tarball is not the relay at version $PM_VERSION"
+        exit 1
+    fi
+
+    live=$(live_version)
+    if [ "${PM_DRY_RUN:-}" = 1 ]; then
+        echo "::warn Dry run: the tarball was fetched and checked, $relay still has ${live:-no relay}"
+        return 0
+    fi
+
+    echo "::point-of-no-return"
+    echo "::step Uploading to $(deploy_conf FTP_URL)"
+    # Only the relay's own files: data/, where the phones' uploads live, is never touched.
+    if ! for file in "${SERVER_FILES[@]}"; do echo "put \"$files/$file\""; done | on_host; then
+        echo "::fail The upload failed; run this action again"
+        exit 1
+    fi
+
+    echo "::step Checking the relay at $relay"
+    live=$(live_version)
+    echo "Relay: version ${live:-none}"
+    if [ "$live" != "$PM_VERSION" ]; then
+        echo "::fail $relay does not answer as version $PM_VERSION; run this action again"
+        exit 1
+    fi
+    # The same checks as before the release, now against the host: a device made for the
+    # purpose is registered, written to, read back and removed.
+    if ! server/test.sh "$relay"; then
+        echo "::fail The relay at $relay is up as $PM_VERSION but fails its checks"
+        exit 1
+    fi
+    echo "::url $relay"
+}
+
 run() {
     : "${PM_VERSION:?}" "${PM_TAG:?}" "${PM_WORK_DIR:?}"
     case "${1:-}" in
-        app) : "${PM_PROJECT_DIR:?}" "${PM_DEFAULT_BRANCH:?}" "${PM_SOURCE_COMMIT:?}"; run_app ;;
+        android) : "${PM_PROJECT_DIR:?}" "${PM_DEFAULT_BRANCH:?}" "${PM_SOURCE_COMMIT:?}"; run_android ;;
+        server) : "${PM_DEFAULT_BRANCH:?}" "${PM_SOURCE_COMMIT:?}"; run_server ;;
+        deploy) : "${PM_PROJECT_DIR:?}"; run_deploy ;;
         *) echo "::fail Unknown action: ${1:-}"; exit 2 ;;
     esac
 }
 
 check() {
     case "${1:-}" in
-        app) check_app ;;
+        android) check_android ;;
+        server) check_server ;;
+        deploy) check_deploy ;;
         *) echo "::fail Unknown action: ${1:-}"; return 2 ;;
     esac
 }

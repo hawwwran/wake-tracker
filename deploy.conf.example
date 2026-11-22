@@ -1,0 +1,14 @@
+# Where the "Deploy the relay" action of .project-manager/release puts the relay.
+# Copy to deploy.conf (git ignores it) and fill in. The FTP password is not kept here:
+# lftp takes it from ~/.netrc,
+#
+#   machine ftp.example.com
+#       login relay-account
+#       password ...
+#
+FTP_URL=ftp://ftp.example.com
+FTP_USER=relay-account
+# The folder on the host the relay's address points at, as the FTP account sees it.
+REMOTE_DIR=/
+# The address the phones are given, without a slash at the end.
+RELAY_URL=https://relay.example.com

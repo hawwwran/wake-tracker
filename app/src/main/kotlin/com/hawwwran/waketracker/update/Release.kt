@@ -15,13 +15,15 @@ data class Release(
 )
 
 object Releases {
-    private const val TAG_PREFIX = "v"
+    // The project's other part, the relay, is released in the same repository as server/vX.Y.Z.
+    private const val TAG_PREFIX = "android/v"
     private const val DIGEST_PREFIX = "sha256:"
     private const val RULE = "---"
 
     /**
-     * The highest version among the releases in GitHub's answer to "list releases". Drafts,
-     * pre-releases, tags that are not `vX.Y.Z` and releases without an APK are passed over.
+     * The highest version among the app's releases in GitHub's answer to "list releases".
+     * Drafts, pre-releases, tags that are not `android/vX.Y.Z` and releases without an APK
+     * are passed over.
      * Null when there is none, or the answer is not what GitHub sends.
      */
     fun newest(body: String): Release? {

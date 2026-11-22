@@ -10,3 +10,5 @@ build/
 *.aab
 *.jks
 *.keystore
+# Where the owner's relay is deployed: .project-manager/release reads it, the public repository does not carry it.
+/deploy.conf

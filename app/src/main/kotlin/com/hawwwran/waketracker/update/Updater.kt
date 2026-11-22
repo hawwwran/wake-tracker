@@ -80,7 +80,7 @@ class Updater(private val app: Application, private val scope: CoroutineScope) {
         if (lastCheck.value == Check.RUNNING) return
         lastCheck.value = Check.RUNNING
         scope.launch(Dispatchers.IO) {
-            val body = fetch("${source()}/repos/$REPO/releases?per_page=20")
+            val body = fetch("${source()}/repos/$REPO/releases?per_page=50")
             if (body == null) {
                 lastCheck.value = Check.UNREACHABLE
                 return@launch

@@ -1,0 +1,6 @@
+# Nothing here is for browsing: the phones talk to api.php.
+RewriteEngine On
+
+# What the phones uploaded. It is ciphertext and token hashes, and still nobody's to fetch.
+RewriteRule ^data/ - [F,L]
+RewriteRule \.(md|sh|part)$ - [F,L]

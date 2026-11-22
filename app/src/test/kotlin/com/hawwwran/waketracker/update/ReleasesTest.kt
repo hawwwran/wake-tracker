@@ -24,9 +24,9 @@ class ReleasesTest {
 
     @Test
     fun `the release with the highest version wins, whatever the order`() {
-        val newest = Releases.newest(list(release("v0.9.0"), release("v0.10.0"), release("v0.2.5")))!!
+        val newest = Releases.newest(list(release("android/v0.9.0"), release("android/v0.10.0"), release("android/v0.2.5")))!!
         assertEquals("0.10.0", newest.version)
-        assertEquals("https://example.test/v0.10.0/wake-tracker.apk", newest.apkUrl)
+        assertEquals("https://example.test/android/v0.10.0/wake-tracker.apk", newest.apkUrl)
         assertEquals(4096, newest.apkSize)
         assertEquals("abcdef0123456789", newest.sha256)
         assertEquals("- A change", newest.notes)
@@ -35,19 +35,21 @@ class ReleasesTest {
     @Test
     fun `drafts, pre-releases, other tags and releases without an APK are passed over`() {
         val body = list(
-            release("v9.0.0", draft = true),
-            release("v8.0.0", prerelease = true),
+            release("android/v9.0.0", draft = true),
+            release("android/v8.0.0", prerelease = true),
             release("nightly-7"),
-            release("v6.0.0-rc1"),
-            release("v5.0.0", apk = null),
-            release("v1.0.0"),
+            release("server/v7.0.0"),
+            release("v6.5.0"),
+            release("android/v6.0.0-rc1"),
+            release("android/v5.0.0", apk = null),
+            release("android/v1.0.0"),
         )
         assertEquals("1.0.0", Releases.newest(body)!!.version)
     }
 
     @Test
     fun `a release without notes or checksum is still a release`() {
-        val body = """[{"tag_name": "v1.2.3", "body": null,
+        val body = """[{"tag_name": "android/v1.2.3", "body": null,
             "assets": [{"name": "app.apk", "browser_download_url": "https://example.test/app.apk", "size": 5}]}]"""
         val release = Releases.newest(body)!!
         assertEquals("", release.notes)
@@ -56,10 +58,10 @@ class ReleasesTest {
 
     @Test
     fun `only what stands above the rule is shown as the changes`() {
-        val withNotes = release("v1.0.0", body = "- One\\n- Two\\n\\n---\\n\\nFor a first install, download the APK.")
+        val withNotes = release("android/v1.0.0", body = "- One\\n- Two\\n\\n---\\n\\nFor a first install, download the APK.")
         assertEquals("- One\n- Two", Releases.newest(list(withNotes))!!.notes)
 
-        val withoutNotes = release("v1.0.0", body = "---\\n\\nFor a first install, download the APK.")
+        val withoutNotes = release("android/v1.0.0", body = "---\\n\\nFor a first install, download the APK.")
         assertEquals("", Releases.newest(list(withoutNotes))!!.notes)
     }
 
