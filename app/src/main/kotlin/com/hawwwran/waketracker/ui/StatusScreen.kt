@@ -72,6 +72,7 @@ fun StatusScreen(model: MainViewModel, onBack: () -> Unit, updates: @Composable 
                 Button(onClick = { UsageAccess.openSettings(context) }, modifier = Modifier.padding(vertical = 8.dp)) {
                     Text(stringResource(R.string.access_open_settings))
                 }
+                RestrictedSettingHelp(Modifier.padding(top = 8.dp, bottom = 12.dp))
             }
             Fact(stringResource(R.string.record_starts), record.coverage?.from?.let(formats::dateTime) ?: MISSING)
             Fact(stringResource(R.string.record_reaches), record.coverage?.until?.let(formats::dateTime) ?: MISSING)

@@ -156,4 +156,8 @@
     <string name="background_restricted">Může aplikaci brzdit</string>
     <string name="background_allow">Povolit běh na pozadí</string>
     <string name="background_explained">Jednou za hodinu si aplikace opíše záznam Androidu a při zapnutém sdílení odešle, co je nového. Android uspává aplikace, které se málokdy otevírají, a pak se to děje jen párkrát denně. Ze záznamu se nic neztratí, ale spárovaný telefon ho uvidí se zpožděním. Když aplikaci povolíš běh na pozadí, drží se té hodiny. Na telefonu vivo ještě v nastavení telefonu povol pro Wake Tracker automatické spouštění.</string>
+
+    <string name="access_restricted_title">Když je přepínač zašedlý</string>
+    <string name="access_restricted_text">U aplikace nainstalované ze souboru Android tenhle přepínač blokuje, dokud blokování nezrušíš. Jednou na zašedlý přepínač ťukni a hlášku zavři. Pak tlačítkem níže otevři stránku aplikace, vpravo nahoře ťukni na ⋮ a zvol „Povolit omezená nastavení“. Potom už přepínač půjde zapnout.</string>
+    <string name="access_open_app_page">Otevřít stránku aplikace</string>
 </resources>

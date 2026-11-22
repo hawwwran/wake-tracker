@@ -152,4 +152,8 @@
     <string name="background_restricted">May hold the app back</string>
     <string name="background_allow">Let it run in the background</string>
     <string name="background_explained">Once an hour the app copies Android\'s log and, when sharing is on, sends on what is new. Android puts apps that are rarely opened to sleep, and then that happens only a few times a day. Nothing is lost from the record, but a paired phone sees it late. Letting the app run in the background keeps it to the hour. On a vivo phone, also allow Autostart for Wake Tracker in the phone\'s settings.</string>
+
+    <string name="access_restricted_title">If the switch is greyed out</string>
+    <string name="access_restricted_text">Android blocks this switch for an app installed from a file until you lift the block. Tap the greyed-out switch once and close the message. Then open the app\'s page with the button below, tap ⋮ at the top right and choose \"Allow restricted settings\". After that the switch works.</string>
+    <string name="access_open_app_page">Open the app\'s page</string>
 </resources>

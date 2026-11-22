@@ -30,6 +30,19 @@ object UsageAccess {
             context.startActivity(list)
         }
     }
+
+    /**
+     * Android's page about this app. From Android 13 on, an app installed from a file has
+     * its usage access switch greyed out ("restricted setting") until the owner lifts that
+     * on this page: the menu at the top right, "Allow restricted settings". The entry shows
+     * up there only after the greyed-out switch was tapped once.
+     */
+    fun openAppPage(context: Context) {
+        context.startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:${context.packageName}".toUri())
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+    }
 }
 
 class SystemUsageLog(private val context: Context) : UsageLog {

@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,7 +99,7 @@ fun AppRoot(model: MainViewModel = viewModel()) {
 private fun AccessRequest() {
     val palette = LocalPalette.current
     val context = LocalContext.current
-    Column(Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 48.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 28.dp, vertical = 48.dp)) {
         Text(stringResource(R.string.access_title), style = MaterialTheme.typography.headlineMedium, color = palette.ink)
         Text(
             stringResource(R.string.access_text),
@@ -113,6 +116,26 @@ private fun AccessRequest() {
             color = palette.muted,
             modifier = Modifier.padding(top = 28.dp),
         )
+        RestrictedSettingHelp(Modifier.padding(top = 28.dp))
+    }
+}
+
+/** What to do when Android greys the usage access switch out, which it does for an app installed from a file. */
+@Composable
+fun RestrictedSettingHelp(modifier: Modifier = Modifier) {
+    val palette = LocalPalette.current
+    val context = LocalContext.current
+    Column(modifier) {
+        Text(stringResource(R.string.access_restricted_title), style = MaterialTheme.typography.titleMedium, color = palette.ink)
+        Text(
+            stringResource(R.string.access_restricted_text),
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.muted,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        OutlinedButton(onClick = { UsageAccess.openAppPage(context) }, modifier = Modifier.padding(top = 12.dp)) {
+            Text(stringResource(R.string.access_open_app_page))
+        }
     }
 }
 

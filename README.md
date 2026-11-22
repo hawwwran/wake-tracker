@@ -46,6 +46,12 @@ The one permission that matters is "usage access", which the owner switches on i
 system settings; the app asks for it on first start. The database is part of Android's
 backup, so the record moves to the owner's next phone.
 
+On a phone where the app was installed from a downloaded APK, Android greys that switch
+out as a "restricted setting" (since Android 13; for usage access since Android 15). The
+owner lifts it on the app's page in the system settings: the menu at the top right, "Allow
+restricted settings", which appears once the greyed-out switch was tapped. The app's first
+screen says so and has a button to that page. An install over `adb` is not restricted.
+
 ### Working by itself
 
 Android puts apps that are rarely opened to sleep, and phones of some makers (vivo among
