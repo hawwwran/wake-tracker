@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: lets the updater talk plain HTTP to this computer, for trying an
+     update against a local server (README, "Trying an update without releasing"). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:networkSecurityConfig="@xml/debug_network_security" />
+</manifest>

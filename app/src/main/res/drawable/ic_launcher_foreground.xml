@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Three days of the app's own chart: a track per day, the lit stretches on it. Drawn inside
+     the 66dp circle every launcher shape keeps. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#2A3556" android:pathData="M31,37h46a3,3 0,0 1,3 3v2a3,3 0,0 1,-3 3h-46a3,3 0,0 1,-3 -3v-2a3,3 0,0 1,3 -3z" />
+    <path android:fillColor="#2A3556" android:pathData="M31,50h46a3,3 0,0 1,3 3v2a3,3 0,0 1,-3 3h-46a3,3 0,0 1,-3 -3v-2a3,3 0,0 1,3 -3z" />
+    <path android:fillColor="#2A3556" android:pathData="M31,63h46a3,3 0,0 1,3 3v2a3,3 0,0 1,-3 3h-46a3,3 0,0 1,-3 -3v-2a3,3 0,0 1,3 -3z" />
+    <path android:fillColor="#7FDBF2" android:pathData="M42,37h9v8h-9z M55,37h4v8h-4z M63,37h11v8h-11z" />
+    <path android:fillColor="#7FDBF2" android:pathData="M38,50h6v8h-6z M48,50h14v8h-14z M66,50h6v8h-6z" />
+    <path android:fillColor="#7FDBF2" android:pathData="M45,63h5v8h-5z M54,63h8v8h-8z M65,63h10v8h-10z" />
+</vector>

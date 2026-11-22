@@ -1,0 +1,99 @@
+<resources>
+    <string name="kind_day">Den</string>
+    <string name="kind_week">Týden</string>
+    <string name="kind_workweek">Po–Pá</string>
+    <string name="kind_weekend">Víkend</string>
+
+    <string name="earlier">Dříve</string>
+    <string name="later">Později</string>
+    <string name="go_to_latest">Zpět na dnešek</string>
+    <string name="today">Dnes</string>
+    <string name="yesterday">Včera</string>
+    <string name="this_week">Tento týden</string>
+    <string name="last_week">Minulý týden</string>
+    <string name="this_weekend">Tento víkend</string>
+    <string name="last_weekend">Minulý víkend</string>
+
+    <string name="screen_on">rozsvícený displej</string>
+    <plurals name="screen_on_in_days">
+        <item quantity="one">rozsvícený displej za %d den</item>
+        <item quantity="few">rozsvícený displej za %d dny</item>
+        <item quantity="many">rozsvícený displej za %d dne</item>
+        <item quantity="other">rozsvícený displej za %d dní</item>
+    </plurals>
+    <string name="first_on">Poprvé</string>
+    <string name="last_on">Naposledy</string>
+    <string name="times_on">Rozsvícení</string>
+    <string name="now">teď</string>
+    <string name="daily_average">Denní průměr</string>
+    <string name="times_on_a_day">Rozsvícení za den</string>
+    <string name="first_on_average">Poprvé, průměr</string>
+    <string name="last_on_average">Naposledy, průměr</string>
+
+    <string name="no_record_title">Bez záznamu</string>
+    <string name="no_record_day_text">Tento den nebylo nic zaznamenáno.</string>
+    <string name="no_record_period_text">V těchto dnech nebylo nic zaznamenáno.</string>
+    <string name="no_record">bez záznamu</string>
+    <string name="screen_stayed_off">displej zůstal zhasnutý</string>
+    <string name="lock_screen">zamykací obrazovka</string>
+    <string name="legend_in_use">Používání</string>
+    <string name="legend_lock_screen">Jen zamykací obrazovka</string>
+    <string name="chart_hint">Ťukni do grafu nebo na řádek a najdeš ho v tom druhém</string>
+    <string name="chart_description">Displej rozsvícený %1$s, poprvé v %2$s, naposledy v %3$s</string>
+    <string name="not_recorded">Nezaznamenáno: %s</string>
+
+    <string name="back">Zpět</string>
+    <string name="open_status">Záznam a nastavení</string>
+    <string name="status_title">Záznam a nastavení</string>
+    <string name="record_heading">Záznam</string>
+    <string name="usage_access">Přístup k údajům o využití</string>
+    <string name="allowed">Povolen</string>
+    <string name="not_allowed">Nepovolen</string>
+    <string name="record_starts">Začíná</string>
+    <string name="record_reaches">Sahá do</string>
+    <string name="last_read">Poslední čtení</string>
+    <string name="events_stored">Uložených událostí</string>
+    <string name="gaps">Mezery</string>
+    <string name="gaps_none">Žádné</string>
+    <plurals name="gaps_count">
+        <item quantity="one">%d mezera</item>
+        <item quantity="few">%d mezery</item>
+        <item quantity="many">%d mezery</item>
+        <item quantity="other">%d mezer</item>
+    </plurals>
+    <string name="read_failed">Poslední čtení se nepovedlo: %s</string>
+    <string name="record_explained">Android si sám zapisuje každé rozsvícení a zhasnutí displeje a ten záznam drží asi deset dní. Wake Tracker si ho opisuje každých pár hodin a pokaždé, když ho otevřeš, takže se nic neztratí, ani když aplikace neběží. Zaznamenané údaje tu nejdou změnit.</string>
+
+    <string name="counting_heading">Počítání</string>
+    <string name="day_starts_at">Den začíná v</string>
+    <string name="day_starts_at_explained">Čas po půlnoci a před touto hodinou patří k předchozímu dni, takže dlouhý večer zůstane jedním dnem.</string>
+    <string name="count_lock_screen">Počítat probuzení na zamykací obrazovce</string>
+    <string name="count_lock_screen_explained">Probuzení, při kterém se displej rozsvítil, ale telefon nebyl odemčen: oznámení, pohled na hodiny. Vypni, pokud chceš počítat jen dobu, kdy byl telefon používán.</string>
+
+    <string name="app_heading">Aplikace</string>
+    <string name="version">Verze</string>
+
+    <string name="access_title">Povol přístup k údajům o využití</string>
+    <string name="access_text">Android si vede záznam o tom, kdy se displej rozsvítí a zhasne. Wake Tracker z něj čte jen tohle a potřebuje k tomu „přístup k údajům o využití“. V seznamu, který se otevře, najdi Wake Tracker a zapni ho.</string>
+    <string name="access_open_settings">Otevřít nastavení</string>
+    <string name="access_history_note">Záznam už obsahuje asi posledních deset dní, takže tvoje historie začne dřív než dnes.</string>
+
+    <string name="update_bar_available">Je k dispozici verze %s</string>
+    <string name="update_bar_downloading">Stahuje se verze %1$s, %2$d %%</string>
+    <string name="update_bar_ready">Verze %s je připravena k instalaci</string>
+    <string name="update_title">Verze %s</string>
+    <string name="update_downloading">Stahuje se</string>
+    <string name="update_ready">Aktualizace je stažená a ověřená. Zbytek udělá instalátor Androidu.</string>
+    <string name="update_needs_permission">Android se jednou zeptá, jestli smí Wake Tracker instalovat vlastní aktualizace. Povol to na stránce, která se otevřela, a vrať se.</string>
+    <string name="update_download_failed">Stažení se nepovedlo, nebo soubor nebyl ten, který uvádí GitHub. Nic se nenainstalovalo.</string>
+    <string name="update_keeps_record">Aktualizace nechá tvůj záznam tak, jak je.</string>
+    <string name="update_install">Stáhnout a nainstalovat</string>
+    <string name="update_install_ready">Nainstalovat</string>
+    <string name="update_try_again">Zkusit znovu</string>
+    <string name="update_cancel">Zrušit</string>
+    <string name="update_later">Později</string>
+    <string name="check_for_updates">Zkontrolovat aktualizace</string>
+    <string name="check_running">Ptám se GitHubu</string>
+    <string name="check_up_to_date">Tohle je nejnovější verze.</string>
+    <string name="check_unreachable">GitHub se nepodařilo zastihnout.</string>
+</resources>

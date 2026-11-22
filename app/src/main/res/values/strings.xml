@@ -1,0 +1,97 @@
+<resources>
+    <string name="app_name" translatable="false">Wake Tracker</string>
+
+    <string name="kind_day">Day</string>
+    <string name="kind_week">Week</string>
+    <string name="kind_workweek">Workweek</string>
+    <string name="kind_weekend">Weekend</string>
+
+    <string name="earlier">Earlier</string>
+    <string name="later">Later</string>
+    <string name="go_to_latest">Back to now</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="this_week">This week</string>
+    <string name="last_week">Last week</string>
+    <string name="this_weekend">This weekend</string>
+    <string name="last_weekend">Last weekend</string>
+
+    <string name="screen_on">screen on</string>
+    <plurals name="screen_on_in_days">
+        <item quantity="one">screen on in %d day</item>
+        <item quantity="other">screen on in %d days</item>
+    </plurals>
+    <string name="first_on">First on</string>
+    <string name="last_on">Last on</string>
+    <string name="times_on">Times on</string>
+    <string name="now">now</string>
+    <string name="daily_average">Daily average</string>
+    <string name="times_on_a_day">Times on a day</string>
+    <string name="first_on_average">First on, average</string>
+    <string name="last_on_average">Last on, average</string>
+
+    <string name="no_record_title">No record</string>
+    <string name="no_record_day_text">Nothing was recorded on this day.</string>
+    <string name="no_record_period_text">Nothing was recorded in these days.</string>
+    <string name="no_record">no record</string>
+    <string name="screen_stayed_off">screen stayed off</string>
+    <string name="lock_screen">lock screen</string>
+    <string name="legend_in_use">In use</string>
+    <string name="legend_lock_screen">Lock screen only</string>
+    <string name="chart_hint">Tap the chart or a line to find it on the other</string>
+    <string name="chart_description">Screen on %1$s, first at %2$s, last at %3$s</string>
+    <string name="not_recorded">Not recorded: %s</string>
+
+    <string name="back">Back</string>
+    <string name="open_status">Record and settings</string>
+    <string name="status_title">Record and settings</string>
+    <string name="record_heading">The record</string>
+    <string name="usage_access">Usage access</string>
+    <string name="allowed">Allowed</string>
+    <string name="not_allowed">Not allowed</string>
+    <string name="record_starts">Starts</string>
+    <string name="record_reaches">Reaches to</string>
+    <string name="last_read">Last read</string>
+    <string name="events_stored">Events stored</string>
+    <string name="gaps">Gaps</string>
+    <string name="gaps_none">None</string>
+    <plurals name="gaps_count">
+        <item quantity="one">%d gap</item>
+        <item quantity="other">%d gaps</item>
+    </plurals>
+    <string name="read_failed">The last read failed: %s</string>
+    <string name="record_explained">Android itself notes every time the screen goes on or off and keeps that log for about ten days. Wake Tracker copies it every few hours and whenever you open it, so nothing is lost while the app is not running. What is recorded cannot be changed here.</string>
+
+    <string name="counting_heading">Counting</string>
+    <string name="day_starts_at">A day starts at</string>
+    <string name="day_starts_at_explained">Time after midnight and before this hour belongs to the day before, so a late evening stays one day.</string>
+    <string name="count_lock_screen">Count lock-screen wakes</string>
+    <string name="count_lock_screen_explained">A wake where the screen lit up but the phone was not unlocked: a notification, a glance at the clock. Switch off to count only the times the phone was in use.</string>
+
+    <string name="app_heading">App</string>
+    <string name="version">Version</string>
+
+    <string name="access_title">Allow usage access</string>
+    <string name="access_text">Android keeps a log of when the screen goes on and off. Wake Tracker reads that and nothing else from it, and for that it needs \"usage access\". Find Wake Tracker in the list that opens and switch it on.</string>
+    <string name="access_open_settings">Open settings</string>
+    <string name="access_history_note">The log already holds about the last ten days, so your record starts before today.</string>
+
+    <string name="update_bar_available">Version %s is available</string>
+    <string name="update_bar_downloading">Downloading version %1$s, %2$d %%</string>
+    <string name="update_bar_ready">Version %s is ready to install</string>
+    <string name="update_title">Version %s</string>
+    <string name="update_downloading">Downloading</string>
+    <string name="update_ready">The update is downloaded and checked. Android\'s installer does the rest.</string>
+    <string name="update_needs_permission">Android asks once whether Wake Tracker may install its own updates. Allow it on the page that opened and come back.</string>
+    <string name="update_download_failed">The download failed, or the file was not the one GitHub lists. Nothing was installed.</string>
+    <string name="update_keeps_record">An update leaves your record as it is.</string>
+    <string name="update_install">Download and install</string>
+    <string name="update_install_ready">Install</string>
+    <string name="update_try_again">Try again</string>
+    <string name="update_cancel">Cancel</string>
+    <string name="update_later">Later</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="check_running">Asking GitHub</string>
+    <string name="check_up_to_date">This is the newest version.</string>
+    <string name="check_unreachable">GitHub could not be reached.</string>
+</resources>
