@@ -3,17 +3,22 @@ package com.hawwwran.waketracker.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +44,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
@@ -54,6 +60,8 @@ import com.hawwwran.waketracker.model.DayClock
 import com.hawwwran.waketracker.model.Period
 import com.hawwwran.waketracker.model.PeriodKind
 import com.hawwwran.waketracker.model.PeriodStats
+import com.hawwwran.waketracker.share.PairedDevice
+import com.hawwwran.waketracker.share.syncLines
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -65,6 +73,7 @@ import java.time.LocalDate
 @Composable
 fun Browser(model: MainViewModel, needsAttention: Boolean, onOpenStatus: () -> Unit) {
     val record by model.record.collectAsStateWithLifecycle()
+    val shared by model.sharing.state.collectAsStateWithLifecycle()
     val preferences by model.preferences.values.collectAsStateWithLifecycle()
     val formats = rememberFormats()
 
@@ -102,18 +111,30 @@ fun Browser(model: MainViewModel, needsAttention: Boolean, onOpenStatus: () -> U
             Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleMedium,
-                color = LocalPalette.current.muted,
-                modifier = Modifier.weight(1f),
-            )
+            if (shared.paired.isEmpty()) {
+                Text(
+                    stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = LocalPalette.current.muted,
+                    modifier = Modifier.weight(1f),
+                )
+            } else {
+                SourceTabs(shared.paired, record.source, model::select, Modifier.weight(1f))
+            }
             Box {
                 IconButton(onClick = onOpenStatus) {
                     Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.open_status))
                 }
                 if (needsAttention) {
                     Box(Modifier.align(Alignment.TopEnd).padding(10.dp).size(8.dp).background(Amber, CircleShape))
+                }
+            }
+        }
+
+        shared.paired.firstOrNull { it.deviceId == record.source }?.let { device ->
+            Column(Modifier.padding(start = 20.dp, end = 20.dp, bottom = 6.dp)) {
+                for (line in syncLines(device, formats)) {
+                    Text(line, style = MaterialTheme.typography.labelMedium, color = LocalPalette.current.muted)
                 }
             }
         }
@@ -153,6 +174,7 @@ fun Browser(model: MainViewModel, needsAttention: Boolean, onOpenStatus: () -> U
                     period = first + page,
                     today = today,
                     model = model,
+                    source = record.source,
                     preferences = preferences,
                     revision = record.revision,
                     formats = formats,
@@ -161,6 +183,44 @@ fun Browser(model: MainViewModel, needsAttention: Boolean, onOpenStatus: () -> U
                         kind = PeriodKind.DAY
                         anchor = day.toEpochDay()
                     },
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Whose record is on show: this phone's, or one of the phones paired with it. Only there
+ * once a phone is paired.
+ */
+@Composable
+private fun SourceTabs(paired: List<PairedDevice>, selected: String?, onSelect: (String?) -> Unit, modifier: Modifier) {
+    val palette = LocalPalette.current
+    Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        val tabs = listOf<Pair<String?, String>>(null to stringResource(R.string.this_phone)) + paired.map { it.deviceId to it.name }
+        for ((source, name) in tabs) {
+            val isSelected = source == selected
+            Column(
+                Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable(role = Role.Tab) { onSelect(source) }
+                    .semantics { this.selected = isSelected }
+                    .padding(horizontal = 4.dp, vertical = 8.dp)
+                    .width(IntrinsicSize.Max),
+            ) {
+                Text(
+                    name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    color = if (isSelected) palette.ink else palette.muted,
+                    maxLines = 1,
+                )
+                Box(
+                    Modifier
+                        .padding(top = 4.dp)
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .background(if (isSelected) palette.lit else Color.Transparent, RoundedCornerShape(1.dp)),
                 )
             }
         }
@@ -283,19 +343,23 @@ private fun PeriodPage(
     period: Period,
     today: LocalDate,
     model: MainViewModel,
+    source: String?,
     preferences: Preferences.Values,
     revision: Int,
     formats: Formats,
     onOpenDay: (LocalDate) -> Unit,
 ) {
     // Keeps showing what it has while a newer read is being worked in, so nothing flickers.
-    val stats by produceState<PeriodStats?>(initialValue = null, period, preferences, revision, formats.zone) {
-        value = model.stats(period, preferences, formats.zone)
+    val stats by produceState<PeriodStats?>(initialValue = null, source, period, preferences, revision, formats.zone) {
+        value = model.stats(source, period, preferences, formats.zone)
     }
     val loaded = stats ?: return
+    // Only this phone's own record is known up to this minute. A paired phone's ends where
+    // its last upload did, so a stretch still running there has an end time, not "now".
+    val live = source == null
     if (period.kind == PeriodKind.DAY) {
-        DayPage(loaded.days.first(), preferences, formats)
+        DayPage(loaded.days.first(), live, formats)
     } else {
-        DaysPage(loaded, today, preferences, formats, onOpenDay)
+        DaysPage(loaded, today, live, preferences, formats, onOpenDay)
     }
 }

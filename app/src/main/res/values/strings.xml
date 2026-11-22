@@ -60,7 +60,7 @@
         <item quantity="other">%d gaps</item>
     </plurals>
     <string name="read_failed">The last read failed: %s</string>
-    <string name="record_explained">Android itself notes every time the screen goes on or off and keeps that log for about ten days. Wake Tracker copies it every few hours and whenever you open it, so nothing is lost while the app is not running. What is recorded cannot be changed here.</string>
+    <string name="record_explained">Android itself notes every time the screen goes on or off and keeps that log for about ten days. Wake Tracker copies it every hour and whenever you open it, so nothing is lost while the app is not running. What is recorded cannot be changed here.</string>
 
     <string name="counting_heading">Counting</string>
     <string name="day_starts_at">A day starts at</string>
@@ -94,4 +94,62 @@
     <string name="check_running">Asking GitHub</string>
     <string name="check_up_to_date">This is the newest version.</string>
     <string name="check_unreachable">GitHub could not be reached.</string>
+
+    <string name="this_phone">This phone</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="rename">Rename</string>
+
+    <string name="sharing_heading">Sharing</string>
+    <string name="sharing_explained">This phone can send its record to a server you name, where the phones you pair with it read it. The record is encrypted on this phone before it leaves, with a key only this phone and the paired phones have. The server cannot read it.</string>
+    <string name="sharing_server">Server address</string>
+    <string name="sharing_asking">Asking the server</string>
+    <string name="sharing_invalid">That is not an https address.</string>
+    <string name="sharing_unreachable">No answer from that address.</string>
+    <string name="sharing_not_a_relay">There is no Wake Tracker server at that address.</string>
+    <string name="sharing_off">Not sharing. Nothing leaves this phone.</string>
+    <string name="sharing_on_never">Sharing. Nothing sent yet.</string>
+    <string name="sharing_on_sent">Sharing. Last sent %s.</string>
+    <plurals name="sharing_pending">
+        <item quantity="one">%d day is waiting to be sent.</item>
+        <item quantity="other">%d days are waiting to be sent.</item>
+    </plurals>
+    <string name="sharing_failure_unreachable">The server could not be reached; it is tried again by itself.</string>
+    <string name="sharing_failure_full">The server has no room left.</string>
+    <string name="sharing_failure_other">The server refused what was sent.</string>
+    <string name="sharing_show_code">Show pairing code</string>
+    <string name="sharing_code_title">Pairing code</string>
+    <string name="sharing_code_text">Scan it with the other phone: Record and settings, Pair another phone. Whoever has this code can read this phone\'s record.</string>
+    <string name="sharing_new_code">New pairing code</string>
+    <string name="sharing_new_code_confirm">Phones paired with the present code stop getting this phone\'s record. Pair them again with the new one.</string>
+    <string name="sharing_stop">Stop sharing</string>
+    <string name="sharing_stop_confirm">This phone stops sending its record and the server deletes what it holds of it. The phones paired with it keep what they already fetched.</string>
+
+    <string name="paired_heading">Paired phones</string>
+    <string name="paired_none">None. Pairing lets this phone read another phone\'s record: show the pairing code on that phone and scan it here.</string>
+    <string name="pair_another">Pair another phone</string>
+    <string name="pair_name_title">Name that phone</string>
+    <string name="pair_name_label">Name</string>
+    <string name="pair_action">Pair</string>
+    <string name="pair_paired">Paired. Its record has a tab of its own on the first page.</string>
+    <string name="pair_not_a_code">That is not a Wake Tracker pairing code.</string>
+    <string name="pair_own_code">That is this phone\'s own code.</string>
+    <string name="pair_scan_failed">The scanner could not start. Try again in a moment.</string>
+    <string name="unpair">Remove</string>
+    <string name="unpair_confirm">Remove %s? Its record is deleted from this phone.</string>
+    <string name="paired_gone">That phone no longer shares its record.</string>
+    <string name="paired_sent">Sent by that phone: %s</string>
+    <string name="paired_sent_never">Nothing from that phone has arrived yet</string>
+    <string name="paired_fetched">Fetched to this phone: %s</string>
+    <string name="paired_fetched_never">Not fetched yet</string>
+
+    <string name="background_heading">Working by itself</string>
+    <string name="background_last_run">Last ran in the background</string>
+    <string name="background_not_yet">Not yet</string>
+    <string name="background_battery">Battery saving</string>
+    <string name="background_unrestricted">Leaves the app alone</string>
+    <string name="background_restricted">May hold the app back</string>
+    <string name="background_allow">Let it run in the background</string>
+    <string name="background_explained">Once an hour the app copies Android\'s log and, when sharing is on, sends on what is new. Android puts apps that are rarely opened to sleep, and then that happens only a few times a day. Nothing is lost from the record, but a paired phone sees it late. Letting the app run in the background keeps it to the hour. On a vivo phone, also allow Autostart for Wake Tracker in the phone\'s settings.</string>
 </resources>

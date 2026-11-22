@@ -32,7 +32,14 @@ import java.time.LocalDate
  * phone wakes and when it rests.
  */
 @Composable
-fun DaysPage(stats: PeriodStats, today: LocalDate, preferences: Preferences.Values, formats: Formats, onOpenDay: (LocalDate) -> Unit) {
+fun DaysPage(
+    stats: PeriodStats,
+    today: LocalDate,
+    live: Boolean,
+    preferences: Preferences.Values,
+    formats: Formats,
+    onOpenDay: (LocalDate) -> Unit,
+) {
     val ticks = remember(stats.days.first().bounds, formats.zone) { hourTicks(stats.days.first().bounds, formats.zone, every = 6) }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -48,7 +55,7 @@ fun DaysPage(stats: PeriodStats, today: LocalDate, preferences: Preferences.Valu
         }
         // Days still to come have nothing to show yet.
         items(stats.days.filter { it.day <= today }, key = { it.day.toEpochDay() }) { day ->
-            DayRow(day, ticks, formats, onClick = { onOpenDay(day.day) })
+            DayRow(day, ticks, live, formats, onClick = { onOpenDay(day.day) })
         }
     }
 }
@@ -81,7 +88,7 @@ private fun PeriodSummary(stats: PeriodStats, preferences: Preferences.Values, f
 }
 
 @Composable
-private fun DayRow(day: DayStats, ticks: List<HourTick>, formats: Formats, onClick: () -> Unit) {
+private fun DayRow(day: DayStats, ticks: List<HourTick>, live: Boolean, formats: Formats, onClick: () -> Unit) {
     val palette = LocalPalette.current
     Column(
         Modifier
@@ -113,7 +120,7 @@ private fun DayRow(day: DayStats, ticks: List<HourTick>, formats: Formats, onCli
                 figure = { Text("${day.timesOn}×", style = MaterialTheme.typography.labelMedium.tabular(), color = palette.muted) },
             ) {
                 Text(
-                    firstToLast(day, formats),
+                    firstToLast(day, live, formats),
                     style = MaterialTheme.typography.labelMedium.tabular(),
                     color = palette.muted,
                     modifier = Modifier.padding(top = 4.dp),
@@ -124,8 +131,8 @@ private fun DayRow(day: DayStats, ticks: List<HourTick>, formats: Formats, onCli
 }
 
 @Composable
-private fun firstToLast(day: DayStats, formats: Formats): String {
+private fun firstToLast(day: DayStats, live: Boolean, formats: Formats): String {
     val first = day.firstOn ?: return stringResource(R.string.screen_stayed_off)
-    val last = if (day.ongoing) stringResource(R.string.now) else formats.clock(day.lastOn ?: first)
+    val last = if (live && day.ongoing) stringResource(R.string.now) else formats.clock(day.lastOn ?: first)
     return "${formats.clock(first)} – $last"
 }

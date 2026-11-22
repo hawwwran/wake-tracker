@@ -16,6 +16,43 @@ data class ReadOutcome(
     val gap: Span? = null,
 )
 
+/** A day of the record that has events the relay has not been given yet. [stamp] changes every time the day gains events. */
+data class PendingDay(val day: Long, val stamp: Long)
+
+/**
+ * The days still to be uploaded to a relay (share/Uploader.kt). Days are numbered in UTC,
+ * the count of days since 1970, which is the same on every phone whatever its time zone.
+ * The store notes a day here in the very transaction that adds events to it, so a day
+ * cannot gain events without being due for upload.
+ */
+interface Outbox {
+    fun pendingDays(): List<PendingDay>
+
+    /** Done with [day] as it stood at [stamp]. If it gained events since, it stays pending. */
+    fun clearPending(day: Long, stamp: Long)
+
+    /** Everything again: a new relay, or a new identity on it, starts with nothing. */
+    fun markAllPending()
+}
+
+/** A copy of another phone's record, written as it arrives from the relay (share/Puller.kt). */
+interface Replica {
+    /** Sets [day]'s events to exactly [events]. */
+    fun replaceDay(day: Long, events: List<ScreenEvent>)
+
+    fun setCoverage(coverage: Coverage)
+
+    /**
+     * The relay's version of that phone's files up to which this copy has taken them over.
+     * Kept with the copy itself: a copy that is lost starts again from 0 and is fetched whole.
+     */
+    fun cursor(): Long
+
+    fun advanceCursor(version: Long)
+}
+
+const val DAY_MS = 24 * 60 * 60 * 1000L
+
 /** The app's own copy of the screen events. Rows are only ever added. */
 interface EventStore {
 

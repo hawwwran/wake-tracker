@@ -10,8 +10,15 @@
         tools:ignore="ProtectedPermissions" />
     <!-- Keeps the periodic read of the log scheduled across restarts (data/SyncJob.kt). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- The app is in no store: it looks for its own updates and installs them (update/). -->
+    <!-- Lets the settings page ask the owner to exempt the app from battery optimisation;
+         a phone that puts the app to sleep reads and uploads only now and then
+         (data/Background.kt). -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- The app is in no store: it looks for its own updates and installs them (update/).
+         Sharing (share/) uses the network too, and only when the owner set a relay. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Lets an upload that found no connection wait for one (share/UploadJob.kt). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- allowBackup on: the system keeps its log for ten days, older history exists only in
@@ -39,6 +46,11 @@
         <!-- Exported for JobScheduler, which is the only one holding the permission. -->
         <service
             android:name=".data.SyncJob"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".share.UploadJob"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

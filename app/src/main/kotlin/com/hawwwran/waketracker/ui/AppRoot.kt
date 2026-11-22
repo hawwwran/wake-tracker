@@ -43,7 +43,8 @@ import kotlinx.coroutines.delay
 fun AppRoot(model: MainViewModel = viewModel()) {
     val palette = LocalPalette.current
     val hasAccess by model.hasAccess.collectAsStateWithLifecycle()
-    val record by model.record.collectAsStateWithLifecycle()
+    val record by model.ownRecord.collectAsStateWithLifecycle()
+    val runsUnrestricted by model.runsUnrestricted.collectAsStateWithLifecycle()
     var statusOpen by rememberSaveable { mutableStateOf(false) }
 
     val updater = (LocalContext.current.applicationContext as WakeTrackerApp).updater
@@ -82,7 +83,7 @@ fun AppRoot(model: MainViewModel = viewModel()) {
 
                 else -> Browser(
                     model = model,
-                    needsAttention = !hasAccess || record.failure != null,
+                    needsAttention = !hasAccess || !runsUnrestricted || record.failure != null,
                     onOpenStatus = { statusOpen = true },
                 )
             }

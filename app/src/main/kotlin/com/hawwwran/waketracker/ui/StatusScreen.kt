@@ -37,8 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hawwwran.waketracker.BuildConfig
 import com.hawwwran.waketracker.R
+import com.hawwwran.waketracker.data.Background
 import com.hawwwran.waketracker.data.Preferences
 import com.hawwwran.waketracker.data.UsageAccess
+import com.hawwwran.waketracker.share.SharingSection
 
 /**
  * Where the record stands and how it is counted. Everything here is about reading the
@@ -47,9 +49,11 @@ import com.hawwwran.waketracker.data.UsageAccess
 @Composable
 fun StatusScreen(model: MainViewModel, onBack: () -> Unit, updates: @Composable () -> Unit) {
     val palette = LocalPalette.current
-    val record by model.record.collectAsStateWithLifecycle()
+    // Always this phone's own record, also while the first page shows a paired phone's.
+    val record by model.ownRecord.collectAsStateWithLifecycle()
     val preferences by model.preferences.values.collectAsStateWithLifecycle()
     val hasAccess by model.hasAccess.collectAsStateWithLifecycle()
+    val runsUnrestricted by model.runsUnrestricted.collectAsStateWithLifecycle()
     val formats = rememberFormats()
     val context = LocalContext.current
 
@@ -97,6 +101,22 @@ fun StatusScreen(model: MainViewModel, onBack: () -> Unit, updates: @Composable 
             }
             Explanation(stringResource(R.string.record_explained))
 
+            Section(stringResource(R.string.background_heading))
+            Fact(
+                stringResource(R.string.background_last_run),
+                if (record.lastBackgroundRun == 0L) stringResource(R.string.background_not_yet) else formats.dateTime(record.lastBackgroundRun),
+            )
+            Fact(
+                stringResource(R.string.background_battery),
+                stringResource(if (runsUnrestricted) R.string.background_unrestricted else R.string.background_restricted),
+            )
+            if (!runsUnrestricted) {
+                Button(onClick = { Background.askToBeUnrestricted(context) }, modifier = Modifier.padding(vertical = 8.dp)) {
+                    Text(stringResource(R.string.background_allow))
+                }
+            }
+            Explanation(stringResource(R.string.background_explained))
+
             Section(stringResource(R.string.counting_heading))
             Text(stringResource(R.string.day_starts_at), style = MaterialTheme.typography.bodyLarge, color = palette.ink)
             HourChoice(preferences.dayStartHour, model.preferences::setDayStartHour)
@@ -120,6 +140,8 @@ fun StatusScreen(model: MainViewModel, onBack: () -> Unit, updates: @Composable 
             }
             Explanation(stringResource(R.string.count_lock_screen_explained))
 
+            SharingSection(model.sharing, formats)
+
             Section(stringResource(R.string.app_heading))
             Fact(stringResource(R.string.version), BuildConfig.VERSION_NAME)
             updates()
@@ -128,7 +150,7 @@ fun StatusScreen(model: MainViewModel, onBack: () -> Unit, updates: @Composable 
 }
 
 @Composable
-private fun Section(title: String) {
+fun Section(title: String) {
     Text(
         title,
         style = MaterialTheme.typography.titleLarge,
@@ -147,12 +169,12 @@ private fun Fact(label: String, value: String) {
 }
 
 @Composable
-private fun Explanation(text: String) {
+fun Explanation(text: String, top: Int = 10) {
     Text(
         text,
         style = MaterialTheme.typography.bodyMedium,
         color = LocalPalette.current.muted,
-        modifier = Modifier.padding(top = 10.dp),
+        modifier = Modifier.padding(top = top.dp),
     )
 }
 

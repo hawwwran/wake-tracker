@@ -8,6 +8,9 @@ import com.hawwwran.waketracker.data.SqliteEventStore
 import com.hawwwran.waketracker.data.SyncJob
 import com.hawwwran.waketracker.data.Synchronizer
 import com.hawwwran.waketracker.data.SystemUsageLog
+import com.hawwwran.waketracker.share.Sharing
+import com.hawwwran.waketracker.share.UploadJob
+import com.hawwwran.waketracker.share.Uploader
 import com.hawwwran.waketracker.update.Updater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +37,8 @@ class WakeTrackerApp : Application() {
         private set
     lateinit var updater: Updater
         private set
+    lateinit var sharing: Sharing
+        private set
     private lateinit var synchronizer: Synchronizer
 
     /** Goes up after every read of the log; what shows the record loads it again. */
@@ -52,9 +57,19 @@ class WakeTrackerApp : Application() {
         preferences = Preferences(this)
         synchronizer = Synchronizer(SystemUsageLog(this), store)
         updater = Updater(this, scope)
+        sharing = Sharing(this, store, scope)
 
         SyncJob.schedule(this)
-        scope.launch(Dispatchers.IO) { readLog() }
+        scope.launch(Dispatchers.IO) { readAndShare() }
+    }
+
+    /**
+     * Brings the record up to date and, when a relay is set, sends on what is new. An upload
+     * that does not get through waits for a connection in a job of its own. Blocking.
+     */
+    fun readAndShare() {
+        readLog()
+        if (sharing.push() is Uploader.Result.Failed) UploadJob.schedule(this)
     }
 
     /** Brings the record up to date. Blocking; call it off the main thread. */

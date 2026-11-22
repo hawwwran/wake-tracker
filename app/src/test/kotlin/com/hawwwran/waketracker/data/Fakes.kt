@@ -6,12 +6,15 @@ import com.hawwwran.waketracker.model.ScreenEvent
 import com.hawwwran.waketracker.model.Span
 
 /** The store's contract in memory, for testing what is built on it. */
-class MemoryEventStore : EventStore {
+class MemoryEventStore : EventStore, Outbox, Replica {
     private val stored = sortedSetOf(compareBy<ScreenEvent>({ it.ts }, { it.type }))
     private val gaps = ArrayList<Span>()
     private var recordStart: Long? = null
     private var reachesUntil: Long? = null
     private var lastReadAt: Long? = null
+    private val pending = sortedMapOf<Long, Long>()
+    private var stamp = 0L
+    private var cursor = 0L
 
     override fun coverage(): Coverage? {
         val from = recordStart ?: return null
@@ -30,12 +33,45 @@ class MemoryEventStore : EventStore {
     override fun lastReadAt() = lastReadAt
 
     override fun commit(outcome: ReadOutcome): Int {
-        val added = outcome.events.count { stored.add(it) }
+        val new = outcome.events.filter { stored.add(it) }
+        val added = new.size
+        if (new.isNotEmpty()) {
+            stamp++
+            new.forEach { pending[Math.floorDiv(it.ts, DAY_MS)] = stamp }
+        }
         outcome.gap?.let { gaps += it }
         if (recordStart == null) recordStart = outcome.recordStart
         outcome.reachesUntil?.let { reachesUntil = it }
         lastReadAt = outcome.readAt
         return added
+    }
+
+    override fun pendingDays() = pending.map { PendingDay(it.key, it.value) }
+
+    override fun clearPending(day: Long, stamp: Long) {
+        if (pending[day] == stamp) pending.remove(day)
+    }
+
+    override fun markAllPending() {
+        stored.forEach { pending[Math.floorDiv(it.ts, DAY_MS)] = 0 }
+    }
+
+    override fun replaceDay(day: Long, events: List<ScreenEvent>) {
+        stored.removeIf { it.ts >= day * DAY_MS && it.ts < (day + 1) * DAY_MS }
+        stored.addAll(events)
+    }
+
+    override fun cursor() = cursor
+
+    override fun advanceCursor(version: Long) {
+        cursor = version
+    }
+
+    override fun setCoverage(coverage: Coverage) {
+        recordStart = coverage.from
+        reachesUntil = coverage.until
+        gaps.clear()
+        gaps.addAll(coverage.gaps)
     }
 }
 

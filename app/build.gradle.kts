@@ -86,6 +86,11 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.android)
 
+    // Pairing: zxing draws this phone's code, Google Play services reads the other phone's
+    // with its own screen, so the app needs neither the camera permission nor a camera library.
+    implementation(libs.zxing.core)
+    implementation(libs.play.services.code.scanner)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     // Android has org.json built in; the JVM the unit tests run on does not.

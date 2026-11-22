@@ -62,7 +62,7 @@
         <item quantity="other">%d mezer</item>
     </plurals>
     <string name="read_failed">Poslední čtení se nepovedlo: %s</string>
-    <string name="record_explained">Android si sám zapisuje každé rozsvícení a zhasnutí displeje a ten záznam drží asi deset dní. Wake Tracker si ho opisuje každých pár hodin a pokaždé, když ho otevřeš, takže se nic neztratí, ani když aplikace neběží. Zaznamenané údaje tu nejdou změnit.</string>
+    <string name="record_explained">Android si sám zapisuje každé rozsvícení a zhasnutí displeje a ten záznam drží asi deset dní. Wake Tracker si ho opisuje každou hodinu a pokaždé, když ho otevřeš, takže se nic neztratí, ani když aplikace neběží. Zaznamenané údaje tu nejdou změnit.</string>
 
     <string name="counting_heading">Počítání</string>
     <string name="day_starts_at">Den začíná v</string>
@@ -96,4 +96,64 @@
     <string name="check_running">Ptám se GitHubu</string>
     <string name="check_up_to_date">Tohle je nejnovější verze.</string>
     <string name="check_unreachable">GitHub se nepodařilo zastihnout.</string>
+
+    <string name="this_phone">Tento telefon</string>
+    <string name="save">Uložit</string>
+    <string name="cancel">Zrušit</string>
+    <string name="done">Hotovo</string>
+    <string name="rename">Přejmenovat</string>
+
+    <string name="sharing_heading">Sdílení</string>
+    <string name="sharing_explained">Tento telefon může svůj záznam posílat na server, který zadáš, a odtud si ho přečtou telefony, které s ním spáruješ. Záznam se před odesláním zašifruje v tomto telefonu klíčem, který má jen on a spárované telefony. Server ho přečíst nemůže.</string>
+    <string name="sharing_server">Adresa serveru</string>
+    <string name="sharing_asking">Ptám se serveru</string>
+    <string name="sharing_invalid">To není adresa https.</string>
+    <string name="sharing_unreachable">Na té adrese nikdo neodpovídá.</string>
+    <string name="sharing_not_a_relay">Na té adrese není server Wake Trackeru.</string>
+    <string name="sharing_off">Nesdílí se. Tento telefon nic neopouští.</string>
+    <string name="sharing_on_never">Sdílí se. Zatím nic neodesláno.</string>
+    <string name="sharing_on_sent">Sdílí se. Naposledy odesláno %s.</string>
+    <plurals name="sharing_pending">
+        <item quantity="one">%d den čeká na odeslání.</item>
+        <item quantity="few">%d dny čekají na odeslání.</item>
+        <item quantity="many">%d dne čeká na odeslání.</item>
+        <item quantity="other">%d dní čeká na odeslání.</item>
+    </plurals>
+    <string name="sharing_failure_unreachable">Server se nepodařilo zastihnout; zkusí se to samo znovu.</string>
+    <string name="sharing_failure_full">Na serveru už není místo.</string>
+    <string name="sharing_failure_other">Server odeslaná data odmítl.</string>
+    <string name="sharing_show_code">Zobrazit párovací kód</string>
+    <string name="sharing_code_title">Párovací kód</string>
+    <string name="sharing_code_text">Naskenuj ho druhým telefonem: Záznam a nastavení, Spárovat další telefon. Kdo má tento kód, může číst záznam tohoto telefonu.</string>
+    <string name="sharing_new_code">Nový párovací kód</string>
+    <string name="sharing_new_code_confirm">Telefony spárované se současným kódem přestanou záznam tohoto telefonu dostávat. Spáruj je znovu novým kódem.</string>
+    <string name="sharing_stop">Přestat sdílet</string>
+    <string name="sharing_stop_confirm">Tento telefon přestane svůj záznam odesílat a server smaže, co z něj má. Spárované telefony si nechají, co už stáhly.</string>
+
+    <string name="paired_heading">Spárované telefony</string>
+    <string name="paired_none">Žádné. Spárováním může tento telefon číst záznam jiného telefonu: na tom druhém zobraz párovací kód a tady ho naskenuj.</string>
+    <string name="pair_another">Spárovat další telefon</string>
+    <string name="pair_name_title">Pojmenuj ten telefon</string>
+    <string name="pair_name_label">Jméno</string>
+    <string name="pair_action">Spárovat</string>
+    <string name="pair_paired">Spárováno. Jeho záznam má na první stránce vlastní záložku.</string>
+    <string name="pair_not_a_code">To není párovací kód Wake Trackeru.</string>
+    <string name="pair_own_code">To je kód tohoto telefonu.</string>
+    <string name="pair_scan_failed">Čtečku se nepodařilo spustit. Zkus to za chvíli znovu.</string>
+    <string name="unpair">Odebrat</string>
+    <string name="unpair_confirm">Odebrat %s? Jeho záznam se z tohoto telefonu smaže.</string>
+    <string name="paired_gone">Ten telefon už svůj záznam nesdílí.</string>
+    <string name="paired_sent">Telefon odeslal: %s</string>
+    <string name="paired_sent_never">Od toho telefonu zatím nic nedorazilo</string>
+    <string name="paired_fetched">Sem staženo: %s</string>
+    <string name="paired_fetched_never">Zatím nestaženo</string>
+
+    <string name="background_heading">Samostatný chod</string>
+    <string name="background_last_run">Naposledy běžela na pozadí</string>
+    <string name="background_not_yet">Zatím ne</string>
+    <string name="background_battery">Úspora baterie</string>
+    <string name="background_unrestricted">Aplikaci neomezuje</string>
+    <string name="background_restricted">Může aplikaci brzdit</string>
+    <string name="background_allow">Povolit běh na pozadí</string>
+    <string name="background_explained">Jednou za hodinu si aplikace opíše záznam Androidu a při zapnutém sdílení odešle, co je nového. Android uspává aplikace, které se málokdy otevírají, a pak se to děje jen párkrát denně. Ze záznamu se nic neztratí, ale spárovaný telefon ho uvidí se zpožděním. Když aplikaci povolíš běh na pozadí, drží se té hodiny. Na telefonu vivo ještě v nastavení telefonu povol pro Wake Tracker automatické spouštění.</string>
 </resources>

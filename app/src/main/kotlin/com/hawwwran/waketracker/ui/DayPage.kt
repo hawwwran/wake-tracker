@@ -41,7 +41,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.hawwwran.waketracker.R
-import com.hawwwran.waketracker.data.Preferences
 import com.hawwwran.waketracker.model.DayStats
 import com.hawwwran.waketracker.model.Session
 import kotlinx.coroutines.launch
@@ -53,7 +52,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DayPage(day: DayStats, preferences: Preferences.Values, formats: Formats) {
+fun DayPage(day: DayStats, live: Boolean, formats: Formats) {
     var picked by remember(day.day) { mutableStateOf<Session?>(null) }
     // A newer read can lengthen the running stretch; a mark on what is no longer there is dropped.
     val selected = picked?.takeIf { it in day.sessions }
@@ -67,7 +66,7 @@ fun DayPage(day: DayStats, preferences: Preferences.Values, formats: Formats) {
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 32.dp),
     ) {
-        item(key = "summary") { DaySummary(day, formats) }
+        item(key = "summary") { DaySummary(day, live, formats) }
         if (!day.hasData) return@LazyColumn
 
         stickyHeader(key = "chart") {
@@ -89,7 +88,7 @@ fun DayPage(day: DayStats, preferences: Preferences.Values, formats: Formats) {
             SessionRow(
                 session = session,
                 isSelected = session == selected,
-                stillOn = day.ongoing && index == day.sessions.lastIndex,
+                stillOn = live && day.ongoing && index == day.sessions.lastIndex,
                 formats = formats,
                 onClick = { picked = if (session == selected) null else session },
             )
@@ -98,7 +97,7 @@ fun DayPage(day: DayStats, preferences: Preferences.Values, formats: Formats) {
 }
 
 @Composable
-private fun DaySummary(day: DayStats, formats: Formats) {
+private fun DaySummary(day: DayStats, live: Boolean, formats: Formats) {
     Column(Modifier.padding(horizontal = 8.dp)) {
         if (!day.hasData) {
             Notice(stringResource(R.string.no_record_title), stringResource(R.string.no_record_day_text))
@@ -109,7 +108,7 @@ private fun DaySummary(day: DayStats, formats: Formats) {
             Stat(stringResource(R.string.first_on), day.firstOn?.let(formats::clock) ?: MISSING, Modifier.weight(1f))
             Stat(
                 stringResource(R.string.last_on),
-                if (day.ongoing) stringResource(R.string.now) else day.lastOn?.let(formats::clock) ?: MISSING,
+                if (live && day.ongoing) stringResource(R.string.now) else day.lastOn?.let(formats::clock) ?: MISSING,
                 Modifier.weight(1f),
             )
             Stat(stringResource(R.string.times_on), day.timesOn.toString(), Modifier.weight(1f))

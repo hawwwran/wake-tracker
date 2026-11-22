@@ -14,7 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Reads the usage log every few hours, so the record keeps up while the app is not opened.
+ * Reads the usage log every hour, so the record keeps up while the app is not opened, and
+ * a phone that shares its record does not show a stale one to the phones paired with it.
  *
  * Nothing depends on it running on time, or at all for days: the system keeps the log for
  * about ten days and any later read catches up. A phone that holds background work back
@@ -25,7 +26,8 @@ class SyncJob : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
         val app = application as WakeTrackerApp
         app.scope.launch(Dispatchers.IO) {
-            app.readLog()
+            app.readAndShare()
+            app.preferences.lastBackgroundRun = System.currentTimeMillis()
             jobFinished(params, false)
         }
         return true
@@ -36,7 +38,7 @@ class SyncJob : JobService() {
 
     companion object {
         private const val ID = 1
-        private const val EVERY = 3 * 60 * 60 * 1000L
+        private const val EVERY = 60 * 60 * 1000L
 
         /** Safe to call on every start: a job that is already scheduled as wanted is left alone. */
         fun schedule(context: Context) {

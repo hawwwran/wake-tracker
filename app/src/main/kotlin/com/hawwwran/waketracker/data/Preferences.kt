@@ -37,9 +37,18 @@ class Preferences(context: Context) {
         state.value = state.value.copy(countLockScreen = count)
     }
 
+    /**
+     * When the hourly job last ran. Not a setting: it is what tells the owner whether the
+     * phone lets the app work in the background. 0: not yet.
+     */
+    var lastBackgroundRun: Long
+        get() = prefs.getLong(LAST_BACKGROUND_RUN, 0)
+        set(value) = prefs.edit { putLong(LAST_BACKGROUND_RUN, value) }
+
     companion object {
         private const val DAY_START_HOUR = "day_start_hour"
         private const val COUNT_LOCK_SCREEN = "count_lock_screen"
+        private const val LAST_BACKGROUND_RUN = "last_background_run"
 
         // 04:00: late enough that an evening running past midnight stays one day, early
         // enough that an early riser's morning is not cut in two.
